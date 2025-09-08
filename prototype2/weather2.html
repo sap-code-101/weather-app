@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+</head>
+
+<body>
+  <h1>Weather App </h1>
+  <form id="city_search">
+    <input type="text" id="city_name" placeholder="City">
+    <button type="submit">Search</button>
+  </form>
+  <div id="city_data">Loading...</div>
+
+  <script>
+    const citySearch = document.getElementById('city_search');
+    const cityName = document.getElementById("city_name");
+    const cityData = document.getElementById("city_data")
+    async function get_weather(cityName) {
+      try {
+        const fetched_data = await fetch(`http://localhost/prototype2/connection.php?city=${cityName}`);
+        const jsoned_data = await fetched_data.json();
+        cityData.innerText = JSON.stringify(jsoned_data);
+        const {
+          city,
+          country,
+          description,
+          icon,
+          temp,
+          feels_like,
+          temp_min,
+          temp_max,
+          humidity,
+          pressure,
+          wind_speed
+        } = jsoned_data;
+
+        const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
+        cityData.innerHTML = `
+          <h2>${city}, ${country}</h2>
+          <img src="${iconUrl}" alt="${description}" />
+          <p><strong>Condition:</strong> ${description}</p>
+          <p><strong>Temperature:</strong> ${temp}°C (feels like ${feels_like}°C)</p>
+          <p><strong>Min / Max:</strong> ${temp_min}°C / ${temp_max}°C</p>
+          <p><strong>Humidity:</strong> ${humidity}%</p>
+          <p><strong>Pressure:</strong> ${pressure} hPa</p>
+          <p><strong>Wind Speed:</strong> ${wind_speed} m/s</p>
+         `;
+      } catch (error) {
+        console.error(error);
+        cityData.innerText = "Data Not Found or Server Error.";
+      }
+    }
+
+    citySearch.addEventListener("submit", (event) => {
+      event.preventDefault();
+      get_weather(cityName.value);
+    })
+    get_weather();
+
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+</head>
+
+<body>
+  <h1>Weather App </h1>
+  <form id="city_search">
+    <input type="text" id="city_name" placeholder="City">
+    <button type="submit">Search</button>
+  </form>
+  <div id="city_data">Loading...</div>
+
+  <script>
+    const apiKey = "34a06356e51c79aa2d327a7a2206fc8a";
+    const initialCity = 'Birgunj';
+    const citySearch = document.getElementById('city_search');
+    const cityName = document.getElementById("city_name");
+    const cityData = document.getElementById("city_data")
+    async function get_weather(cityName) {
+      try {
+        const fetched_data = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`);
+        const jsoned_data = await fetched_data.json();
+        cityData.innerText = JSON.stringify(jsoned_data);
+        const {
+          name,
+          sys: { country },
+          weather,
+          main: { temp, feels_like, temp_min, temp_max, humidity, pressure },
+          wind: { speed },
+        } = jsoned_data;
+
+        const description = weather[0].description;
+        const iconEncoding = weather[0].icon;
+        const iconUrl = `https://openweathermap.org/img/wn/${iconEncoding}@2x.png`;
+
+        cityData.innerHTML = `
+          <h2>${name}, ${country}</h2>
+          <img src="${iconUrl}" alt="${description}" />
+          <p><strong>Condition:</strong> ${description}</p>
+          <p><strong>Temperature:</strong> ${temp}°C (feels like ${feels_like}°C)</p>
+          <p><strong>Min / Max:</strong> ${temp_min}°C / ${temp_max}°C</p>
+          <p><strong>Humidity:</strong> ${humidity}%</p>
+          <p><strong>Pressure:</strong> ${pressure} hPa</p>
+          <p><strong>Wind Speed:</strong> ${speed} m/s</p>
+         `;
+      } catch (error) {
+        console.error(error);
+        cityData.innerText = "Weather Data not found/failed to load.";
+      }
+    }
+
+    citySearch.addEventListener("submit", (event) => {
+      event.preventDefault();
+      get_weather(cityName.value);
+    })
+    cityName.value = initialCity;
+    get_weather(initialCity);
+
+
+  </script>
+</body>
+
+</html>
